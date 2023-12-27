@@ -1,0 +1,23 @@
+{
+  "name": "ROLE_SYSTEM",
+  "rank": 1,
+  "#class": "Account.Role",
+  "permission": [
+    {
+      "name": "System:Apache2:site.create",
+      "#class": "Account.Permission"
+    },
+    {
+      "name": "System:Apache2:site.enable",
+      "#class": "Account.Permission"
+    },
+    {
+      "name": "System:Apache2:site.disable",
+      "#class": "Account.Permission"
+    },
+    {
+      "name": "System:Apache2:site.delete",
+      "#class": "Account.Permission"
+    }
+  ]
+}
