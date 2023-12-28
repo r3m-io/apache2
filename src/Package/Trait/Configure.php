@@ -281,7 +281,7 @@ trait Configure {
      */
     public function apache2_site_create($options=[]): void
     {
-        $options = Core::object($options, Core::OBJECT_ARRAY);
+        $options = Core::object($options, Core::OBJECT_OBJECT);
         $object = $this->object();
         if ($object->config(Config::POSIX_ID) !== 0) {
             $exception = new Exception('Only root can configure host add...');
@@ -291,7 +291,10 @@ trait Configure {
             ]);
             throw $exception;
         }
-        ddd($options);
+        $parse = new Parse($object);
+        $url = $object->config('controller.dir.data') . '001-site.conf';
+        $read = File::read($url);
+        ddd($read);
 
     }
 
