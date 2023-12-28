@@ -3,9 +3,9 @@
     "Route": [
       {
         "#class": "System.Route",
-        "name": "r3m-io-cli-apache2",
-        "path": "r3m_io\/apache2",
-        "controller": "Package:R3m:Io:Apache2:Controller:Cli:run",
+        "name": "r3m-io-cli-basic",
+        "path": "r3m_io\/basic",
+        "controller": "Package:R3m:Io:Basic:Controller:Cli:run",
         "priority": 1001,
         "request": {
           "language": "en"

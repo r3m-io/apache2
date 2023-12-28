@@ -1,6 +1,6 @@
 <?php
 
-namespace Package\R3m\Io\Apache2\Controller;
+namespace Package\R3m\Io\Basic\Controller;
 
 use R3m\Io\App;
 use R3m\Io\Config;
