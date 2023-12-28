@@ -34,22 +34,25 @@ trait Configure {
 
         $read = Sort::list($read)->with(['name' => 'desc']);
 
-        $old = false;
+        $file_old = false;
         if(count($read) === 1){
             $file = current($read);
         } else {
             $file = current($read);
             $file_old = end($read);
         }
-        d($file);
-        ddd($file_old);
-
+        $fpm = 'php' . $file->name . '-fpm';
+        if($file_old){
+            $php = 'php' . $file_old->name;
+        } else {
+            $php = 'php' . $file->name;
+        }
         Dir::create('/run/php');
         $command = 'a2enmod proxy_fcgi setenvif';
         exec($command);
-        $command = 'a2enconf ' . PHP::FPM;
+        $command = 'a2enconf ' . escapeshellarg($fpm);
         exec($command);
-        $command = 'a2dismod php8.2';
+        $command = 'a2dismod ' . escapeshellarg($php);
         exec($command);
         $command = 'a2dismod mpm_prefork';
         exec($command);
