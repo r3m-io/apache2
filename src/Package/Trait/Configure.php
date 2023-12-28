@@ -39,10 +39,10 @@ trait Configure {
             $file = current($read);
         } else {
             $file = current($read);
-            $old = end($read);
+            $file_old = end($read);
         }
         d($file);
-        ddd($old);
+        ddd($file_old);
 
         Dir::create('/run/php');
         $command = 'a2enmod proxy_fcgi setenvif';
