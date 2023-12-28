@@ -28,12 +28,9 @@ trait Configure {
         }
         //php and apache2 should be installed by docker.
         //if there is a different sury package, there are multiple versions
-
         $dir = new Dir();
         $read = $dir->read('/etc/php/');
-
         $read = Sort::list($read)->with(['name' => 'desc']);
-
         $file_old = false;
         if(count($read) === 1){
             $file = current($read);
