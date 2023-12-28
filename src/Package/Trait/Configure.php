@@ -338,7 +338,10 @@ trait Configure {
         $dir_available = '/etc/apache2/sites-available/';
         $dir = new Dir();
         $files = $dir->read($dir_available);
-        if($files && is_array($files)){
+        if(
+            $files &&
+            is_array($files)
+        ){
             foreach($files as $file){
                 if($file->type === File::TYPE){
                     if(stristr($file->name, $options->server->name) !== false){
