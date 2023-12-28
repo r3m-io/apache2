@@ -155,7 +155,15 @@ trait Configure {
                 exec('chmod 640 ' . $destination);
                 exec('chown root:root ' . $destination);
                 $disabled = $object->config('server.site.disabled');
-                if(in_array($file->name, $disabled, true)){
+                if(
+                    $disabled &&
+                    is_array($disabled) &&
+                    in_array(
+                        $file->name,
+                        $disabled,
+                        true
+                    )
+                ){
                     $command = 'a2dissite ' . $file->name;
                     Core::execute($object, $command, $output, $notification);
                     if(!empty($output)){
