@@ -49,24 +49,84 @@ trait Configure {
         }
         Dir::create('/run/php');
         $command = 'a2enmod proxy_fcgi setenvif';
-        exec($command);
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output . PHP_EOL;
+        }
+        if($notification){
+            echo $notification . PHP_EOL;
+        }
         $command = 'a2enconf ' . escapeshellarg($fpm);
-        exec($command);
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output . PHP_EOL;
+        }
+        if($notification){
+            echo $notification . PHP_EOL;
+        }
         $command = 'a2dismod ' . escapeshellarg($php);
-        exec($command);
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output . PHP_EOL;
+        }
+        if($notification){
+            echo $notification . PHP_EOL;
+        }
         $command = 'a2dismod mpm_prefork';
-        exec($command);
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output . PHP_EOL;
+        }
+        if($notification){
+            echo $notification . PHP_EOL;
+        }
         $command = 'a2enmod mpm_event';
-        exec($command);
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output . PHP_EOL;
+        }
+        if($notification){
+            echo $notification . PHP_EOL;
+        }
         $command = 'a2enmod http2';
-        exec($command);
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output . PHP_EOL;
+        }
+        if($notification){
+            echo $notification . PHP_EOL;
+        }
         $command = 'a2enmod rewrite';
-        exec($command);
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output . PHP_EOL;
+        }
+        if($notification){
+            echo $notification . PHP_EOL;
+        }
         $command = 'a2enmod ssl';
-        exec($command);
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output . PHP_EOL;
+        }
+        if($notification){
+            echo $notification . PHP_EOL;
+        }
         $command = 'a2enmod md';
-        exec($command);
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output . PHP_EOL;
+        }
+        if($notification){
+            echo $notification . PHP_EOL;
+        }
         $command = '. /etc/apache2/envvars';
-        exec($command);
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output . PHP_EOL;
+        }
+        if($notification){
+            echo $notification . PHP_EOL;
+        }
     }
 }
