@@ -6,8 +6,10 @@ use R3m\Io\App;
 use R3m\Io\Config;
 
 
+use R3m\Io\Exception\ObjectException;
 use R3m\Io\Module\Dir;
 use R3m\Io\Module\Core;
+use R3m\Io\Module\Event;
 use R3m\Io\Module\File;
 use R3m\Io\Module\Sort;
 
@@ -271,6 +273,26 @@ trait Configure {
         if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
+    }
+
+    /**
+     * @throws ObjectException
+     * @throws Exception
+     */
+    public function apache2_site_create($options=[]): void
+    {
+        $options = Core::object($options, Core::OBJECT_ARRAY);
+        $object = $this->object();
+        if ($object->config(Config::POSIX_ID) !== 0) {
+            $exception = new Exception('Only root can configure host add...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        ddd($options);
+
     }
 
     /**
