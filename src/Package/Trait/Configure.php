@@ -34,7 +34,15 @@ trait Configure {
 
         $read = Sort::list($read)->with(['name' => 'desc']);
 
-        ddd($read);
+        $old = false;
+        if(count($read) === 1){
+            $file = current($read);
+        } else {
+            $file = current($read);
+            $old = end($read);
+        }
+        d($file);
+        ddd($old);
 
         Dir::create('/run/php');
         $command = 'a2enmod proxy_fcgi setenvif';
