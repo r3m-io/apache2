@@ -340,7 +340,23 @@ trait Configure {
         $dir = '/etc/apache2/sites-available/';
         $number = sprintf("%'.03d", File::count($dir));
         $url = $dir . $number . '-' . str_replace('.', '-', $options->server->name) . $object->config('extension.conf');
-        ddd($url);
+        File::write($url, $read);
+        $command = 'chmod 640 ' . $url;
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+        $command = 'chown root:root ' . $url;
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
     }
 
     /**
