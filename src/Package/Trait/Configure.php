@@ -293,6 +293,7 @@ trait Configure {
         $parse = new Parse($object);
         $url = $object->config('controller.dir.data') . '001-site.conf';
         $read = File::read($url);
+        $read = $parse->compile($read, $object->data());
         ddd($read);
 
     }
