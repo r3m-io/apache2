@@ -47,82 +47,82 @@ trait Configure {
         Dir::create('/run/php');
         $command = 'a2enmod proxy_fcgi setenvif';
         Core::execute($object, $command, $output, $notification);
-        if($output){
+        if(!empty($output)){
             echo $output . PHP_EOL;
         }
-        if($notification){
+        if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
         $command = 'a2enconf ' . escapeshellarg($fpm);
         Core::execute($object, $command, $output, $notification);
-        if($output){
+        if(!empty($output)){
             echo $output . PHP_EOL;
         }
-        if($notification){
+        if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
         $command = 'a2dismod ' . escapeshellarg($php);
         Core::execute($object, $command, $output, $notification);
-        if($output){
+        if(!empty($output)){
             echo $output . PHP_EOL;
         }
-        if($notification){
+        if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
         $command = 'a2dismod mpm_prefork';
         Core::execute($object, $command, $output, $notification);
-        if($output){
+        if(!empty($output)){
             echo $output . PHP_EOL;
         }
-        if($notification){
+        if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
         $command = 'a2enmod mpm_event';
         Core::execute($object, $command, $output, $notification);
-        if($output){
+        if(!empty($output)){
             echo $output . PHP_EOL;
         }
-        if($notification){
+        if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
         $command = 'a2enmod http2';
         Core::execute($object, $command, $output, $notification);
-        if($output){
+        if(!empty($output)){
             echo $output . PHP_EOL;
         }
-        if($notification){
+        if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
         $command = 'a2enmod rewrite';
         Core::execute($object, $command, $output, $notification);
-        if($output){
+        if(!empty($output)){
             echo $output . PHP_EOL;
         }
-        if($notification){
+        if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
         $command = 'a2enmod ssl';
         Core::execute($object, $command, $output, $notification);
-        if($output){
+        if(!empty($output)){
             echo $output . PHP_EOL;
         }
-        if($notification){
+        if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
         $command = 'a2enmod md';
         Core::execute($object, $command, $output, $notification);
-        if($output){
+        if(!empty($output)){
             echo $output . PHP_EOL;
         }
-        if($notification){
+        if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
         $command = '. /etc/apache2/envvars';
         Core::execute($object, $command, $output, $notification);
-        if($output){
+        if(!empty($output)){
             echo $output . PHP_EOL;
         }
-        if($notification){
+        if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
     }
@@ -156,19 +156,19 @@ trait Configure {
                 if(in_array($file->name, $disabled, true)){
                     $command = 'a2dissite ' . $file->name;
                     Core::execute($object, $command, $output, $notification);
-                    if($output){
+                    if(!empty($output)){
                         echo $output . PHP_EOL;
                     }
-                    if($notification){
+                    if(!empty($notification)){
                         echo $notification . PHP_EOL;
                     }
                 } else {
                     $command = 'a2ensite ' . $file->name;
                     Core::execute($object, $command, $output, $notification);
-                    if($output){
+                    if(!empty($output)){
                         echo $output . PHP_EOL;
                     }
-                    if($notification){
+                    if(!empty($notification)){
                         echo $notification . PHP_EOL;
                     }
                 }
@@ -217,10 +217,35 @@ trait Configure {
         }
         $command = 'service apache2 restart';
         Core::execute($object, $command, $output, $notification);
-        if($output){
+        if(!empty($output)){
             echo $output . PHP_EOL;
         }
-        if($notification){
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function php_restart(App $object, $event, $options=[]): void
+    {
+        if($object->config(Config::POSIX_ID) !== 0){
+            return;
+        }
+        //php and apache2 should be installed by docker.
+        //if there is a different sury package, there are multiple versions
+        $dir = new Dir();
+        $read = $dir->read('/etc/php/');
+        $read = Sort::list($read)->with(['name' => 'desc']);
+        $file = current($read);
+        $fpm = 'php' . $file->name . '-fpm';
+        $command = 'service ' . $fpm . ' restart';
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
     }
