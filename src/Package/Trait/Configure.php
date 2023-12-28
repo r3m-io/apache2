@@ -228,8 +228,9 @@ trait Configure {
     /**
      * @throws Exception
      */
-    public static function php_restart(App $object, $event, $options=[]): void
+    public function php_restart(): void
     {
+        $object = $this->object();
         if($object->config(Config::POSIX_ID) !== 0){
             return;
         }
