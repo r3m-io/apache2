@@ -3,15 +3,23 @@ namespace Package\R3m\Io\Apache2\Trait;
 
 use R3m\Io\Config;
 
+
 use R3m\Io\Module\Dir;
 use R3m\Io\Module\Core;
 use R3m\Io\Module\File;
+use R3m\Io\Module\Sort;
 
 use R3m\Io\Node\Model\Node;
 
 use Exception;
+
+use R3m\Io\Exception\DirectoryCreateException;
 trait Configure {
 
+    /**
+     * @throws DirectoryCreateException
+     * @throws Exception
+     */
     public function apache2(): void
     {
         $object = $this->object();
@@ -23,6 +31,8 @@ trait Configure {
 
         $dir = new Dir();
         $read = $dir->read('/etc/php/');
+
+        $read = Sort::list($read)->with(['name' => 'asc']);
 
         ddd($read);
 
