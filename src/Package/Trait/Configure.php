@@ -294,7 +294,11 @@ trait Configure {
         $url = $object->config('controller.dir.data') . '001-site.conf';
         $read = File::read($url);
         $read = $parse->compile($read, $object->data());
-        d($read);
+
+        echo $read . PHP_EOL;
+
+
+//        d($read);
         die;
 
     }
