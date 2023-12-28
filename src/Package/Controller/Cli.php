@@ -22,9 +22,20 @@ class Cli extends Controller {
     const DIR = __DIR__ . '/';
     const MODULE_INFO = 'Info';
     const INFO = [
-        '{{binary()}} r3m_io/apache2                 | Apache2 options',
-        '{{binary()}} r3m_io/apache2 setup           | Apache2 setup',
-        '{{binary()}} r3m_io/apache2 update          | Apache2 update',
+        '{{binary()}} r3m_io/basic                           | Basic options',
+        '{{binary()}} r3m_io/basic setup                     | Basic setup',
+        '{{binary()}} r3m_io/basic update                    | Basic update',
+        '{{binary()}} r3m_io/basic configure apache2         | Configure apache2',
+        '{{binary()}} r3m_io/basic configure apache2 backup  | Apache2 backup',
+        '{{binary()}} r3m_io/basic configure apache2 restore | Apache2 restore',
+        '{{binary()}} r3m_io/basic configure apache2 restart | Apache2 restart',
+        '{{binary()}} r3m_io/basic configure apache2 start   | Apache2 start',
+        '{{binary()}} r3m_io/basic configure apache2 stop    | Apache2 stop',
+        '{{binary()}} r3m_io/basic configure php backup      | Php backup',
+        '{{binary()}} r3m_io/basic configure php restore     | Php restore',
+        '{{binary()}} r3m_io/basic configure php restart     | Php-fpm restart',
+        '{{binary()}} r3m_io/basic configure php start       | Php-fpm start',
+        '{{binary()}} r3m_io/basic configure php stop        | Php-fpm stop',
     ];
 
     /**
