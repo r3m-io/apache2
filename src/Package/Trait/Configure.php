@@ -32,7 +32,7 @@ trait Configure {
         $dir = new Dir();
         $read = $dir->read('/etc/php/');
 
-        $read = Sort::list($read)->with(['name' => 'asc']);
+        $read = Sort::list($read)->with(['name' => 'desc']);
 
         ddd($read);
 
