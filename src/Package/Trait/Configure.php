@@ -1,7 +1,7 @@
 <?php
 namespace Package\R3m\Io\Apache2\Trait;
 
-use R3m\Io\App;
+use R3m\Io\Config;
 
 use R3m\Io\Module\Dir;
 use R3m\Io\Module\Core;
