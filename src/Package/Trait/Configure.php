@@ -293,6 +293,7 @@ trait Configure {
         $parse = new Parse($object);
         $url = $object->config('controller.dir.data') . '001-site.conf';
         $read = File::read($url);
+        $object->set('options', $options);
         $read = $parse->compile($read, $object->data());
 
         echo $read . PHP_EOL;
