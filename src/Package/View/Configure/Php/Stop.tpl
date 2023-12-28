@@ -1,2 +1,2 @@
 {{R3M}}
-{{Package.R3m.Io.Apache2:Configure:php.stop()}}
+{{Package.R3m.Io.Basic:Configure:php.stop()}}

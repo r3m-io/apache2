@@ -1,2 +1,2 @@
 {{R3M}}
-{{Package.R3m.Io.Apache2:Configure:apache2()}}
+{{Package.R3m.Io.Basic:Configure:apache2()}}
