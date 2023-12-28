@@ -335,10 +335,26 @@ trait Configure {
         if(substr($options->server->root, -1, 1) === '/'){
             $options->server->root = substr($options->server->root, 0, -1);
         }
+        $dir_available = '/etc/apache2/sites-available/';
+        $dir = new Dir();
+        $files = $dir->read($dir_available);
+        if($files && is_array($files)){
+            foreach($files as $file){
+                if($file->type === File::TYPE){
+                    if(stristr($file->name, $options->server->name) !== false){
+                        $exception = new Exception('Site ' . $options->server->name . ' already exists...');
+                        Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
+                            'options' => $options,
+                            'exception' => $exception
+                        ]);
+                        throw $exception;
+                    }
+                }
+            }
+        }
         $object->set('options', $options);
         $read = $parse->compile($read, $object->data());
-        $dir = '/etc/apache2/sites-available/';
-        $number = sprintf("%'.03d", File::count($dir));
+        $number = sprintf("%'.03d", File::count($dir_available));
         $url = $dir . $number . '-' . str_replace('.', '-', $options->server->name) . $object->config('extension.conf');
         File::write($url, $read);
         $command = 'chmod 640 ' . $url;
@@ -357,6 +373,51 @@ trait Configure {
         if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
+    }
+
+    /**
+     * @throws ObjectException
+     * @throws Exception
+     */
+    public function apache2_site_has($options=[]): bool
+    {
+        $options = Core::object($options, Core::OBJECT_OBJECT);
+        $object = $this->object();
+        if ($object->config(Config::POSIX_ID) !== 0) {
+            $exception = new Exception('Only root can configure host add...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.enable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        if (
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'name')
+        ) {
+            //nothing
+        } else {
+            $exception = new Exception('Please provide the option (server.name)...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.enable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        $url = '/etc/apache2/sites-available/';
+        $dir = new Dir();
+        $read = $dir->read($url);
+        $is_enabled = false;
+        if ($read && is_array($read)) {
+            foreach ($read as $file) {
+                if ($file->type === File::TYPE) {
+                    if (stristr($file->name, $options->server->name) !== false) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
