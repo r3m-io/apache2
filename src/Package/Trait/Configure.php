@@ -355,7 +355,7 @@ trait Configure {
         $object->set('options', $options);
         $read = $parse->compile($read, $object->data());
         $number = sprintf("%'.03d", File::count($dir_available));
-        $url = $dir . $number . '-' . str_replace('.', '-', $options->server->name) . $object->config('extension.conf');
+        $url = $dir_available . $number . '-' . str_replace('.', '-', $options->server->name) . $object->config('extension.conf');
         File::write($url, $read);
         $command = 'chmod 640 ' . $url;
         Core::execute($object, $command, $output, $notification);
