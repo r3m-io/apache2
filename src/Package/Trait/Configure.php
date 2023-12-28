@@ -344,7 +344,7 @@ trait Configure {
         ){
             foreach($files as $file){
                 if($file->type === File::TYPE){
-                    if(stristr($file->name, $options->server->name) !== false){
+                    if(stristr($file->name, str_replace('.', '-', $options->server->name)) !== false){
                         $exception = new Exception('Site ' . $options->server->name . ' already exists...');
                         Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
                             'options' => $options,
@@ -414,7 +414,7 @@ trait Configure {
         if ($read && is_array($read)) {
             foreach ($read as $file) {
                 if ($file->type === File::TYPE) {
-                    if (stristr($file->name, $options->server->name) !== false) {
+                    if (stristr($file->name, str_replace('.', '-', $options->server->name)) !== false) {
                         return true;
                     }
                 }
@@ -459,7 +459,7 @@ trait Configure {
         if($read && is_array($read)){
             foreach ($read as $file){
                 if($file->type === File::TYPE){
-                    if(stristr($file->name, $options->server->name) !== false){
+                    if(stristr($file->name,str_replace('.', '-', $options->server->name)) !== false){
                         $command = 'a2ensite ' . $file->name;
                         Core::execute($object, $command, $output, $notification);
                         if(!empty($output)){
