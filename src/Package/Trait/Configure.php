@@ -374,7 +374,7 @@ trait Configure {
         if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
-        $command = 'cp /etc/php/' . $php_version . '/fpm/php-fpm.conf' . $dir_fpm . 'php-fpm.conf';
+        $command = 'cp /etc/php/' . $php_version . '/fpm/php-fpm.conf ' . $dir_fpm . 'php-fpm.conf';
         Core::execute($object, $command, $output, $notification);
         if(!empty($output)){
             echo $output . PHP_EOL;
@@ -382,7 +382,7 @@ trait Configure {
         if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
-        $command = 'cp /etc/php/' . $php_version . '/fpm/pool.d/www.conf' . $dir_fpm_pool_d . 'www.conf';
+        $command = 'cp /etc/php/' . $php_version . '/fpm/pool.d/www.conf ' . $dir_fpm_pool_d . 'www.conf';
         Core::execute($object, $command, $output, $notification);
         if(!empty($output)){
             echo $output . PHP_EOL;
