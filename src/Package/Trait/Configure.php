@@ -230,6 +230,44 @@ trait Configure {
     /**
      * @throws Exception
      */
+    public function apache2_start(): void
+    {
+        $object = $this->object();
+        if($object->config(Config::POSIX_ID) !== 0){
+            return;
+        }
+        $command = 'service apache2 start';
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function apache2_stop(): void
+    {
+        $object = $this->object();
+        if($object->config(Config::POSIX_ID) !== 0){
+            return;
+        }
+        $command = 'service apache2 stop';
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
     public function php_restart(): void
     {
         $object = $this->object();
