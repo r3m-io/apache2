@@ -1,6 +1,8 @@
 <?php
 namespace Package\R3m\Io\Apache2\Trait;
 
+use Event\R3m\Io\Framework\Php;
+use R3m\Io\App;
 use R3m\Io\Config;
 
 
@@ -248,6 +250,245 @@ trait Configure {
         }
         if(!empty($notification)){
             echo $notification . PHP_EOL;
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function php_stop(): void
+    {
+        $object = $this->object();
+        if($object->config(Config::POSIX_ID) !== 0){
+            return;
+        }
+        //php and apache2 should be installed by docker.
+        //if there is a different sury package, there are multiple versions
+        $dir = new Dir();
+        $read = $dir->read('/etc/php/');
+        $read = Sort::list($read)->with(['name' => 'desc']);
+        $file = current($read);
+        $fpm = 'php' . $file->name . '-fpm';
+        $command = 'service ' . $fpm . ' stop';
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function php_start(): void
+    {
+        $object = $this->object();
+        if($object->config(Config::POSIX_ID) !== 0){
+            return;
+        }
+        //php and apache2 should be installed by docker.
+        //if there is a different sury package, there are multiple versions
+        $dir = new Dir();
+        $read = $dir->read('/etc/php/');
+        $read = Sort::list($read)->with(['name' => 'desc']);
+        $file = current($read);
+        $fpm = 'php' . $file->name . '-fpm';
+        $command = 'service ' . $fpm . ' start';
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+    }
+
+    /**
+     * @throws DirectoryCreateException
+     * @throws Exception
+     */
+    public function php_backup(): void
+    {
+        $object = $this->object();
+        if($object->config(Config::POSIX_ID) !== 0){
+            return;
+        }
+        $dir = new Dir();
+        $read = $dir->read('/etc/php/');
+        $read = Sort::list($read)->with(['name' => 'desc']);
+        $file = current($read);
+        $php_version = $file->name;
+        $dir_php = $object->config('project.dir.data') . 'Php/';
+        $dir_version = $dir_php . $php_version . '/';
+        $dir_fpm = $dir_version . 'Fpm/';
+        $dir_cli = $dir_version . 'Cli/';
+        $dir_fpm_pool_d = $dir_fpm . 'Pool.d/';
+        Dir::create($dir_fpm, Dir::CHMOD);
+        Dir::create($dir_fpm_pool_d, Dir::CHMOD);
+        Dir::create($dir_cli, Dir::CHMOD);
+        $command = 'cp /etc/php/' . $php_version . '/fpm/php.ini ' . $dir_fpm . 'php.ini';
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+        $command = 'cp /etc/php/' . $php_version . '/fpm/php-fpm.conf' . $dir_fpm . 'php-fpm.conf';
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+        $command = 'cp /etc/php/' . $php_version . '/fpm/pool.d/www.conf' . $dir_fpm_pool_d . 'www.conf';
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+        $command = 'cp /etc/php/' . $php_version . '/cli/php.ini ' . $dir_cli . 'php.ini';
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+        File::permission($object, [
+            'dir_php' => $dir_php,
+            'dir_version' => $dir_version,
+            'dir_fpm' => $dir_fpm,
+            'dir_fpm_pool_d' => $dir_fpm_pool_d,
+            'dir_cli' => $dir_cli,
+            'file_fpm_php_ini' => $dir_fpm . 'php.ini',
+            'file_fpm_php_fpm_conf' => $dir_fpm . 'php-fpm.conf',
+            'file_fpm_pool_d_www_conf' => $dir_fpm_pool_d . 'www.conf',
+            'file_cli_php_ini' => $dir_cli . 'php.ini',
+        ]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function restore(App $object, $event, $options=[]): void
+    {
+        if($object->config(Config::POSIX_ID) !== 0){
+            return;
+        }
+        $dir = new Dir();
+        $read = $dir->read('/etc/php/');
+        $read = Sort::list($read)->with(['name' => 'desc']);
+        $file = current($read);
+        $php_version = $file->name;
+        if(File::exist($object->config('project.dir.data') . 'Php/' . $php_version . '/Fpm/php.ini')){
+            $command = 'cp ' . $object->config('project.dir.data') . 'Php/' . $php_version . '/Fpm/php.ini /etc/php/' . $php_version . '/fpm/php.ini';
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+            $command = 'chown root:root /etc/php/' . $php_version . '/fpm/php.ini';
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+            $command = 'chmod 640 /etc/php/' . $php_version . '/fpm/php.ini';
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+        }
+        if(File::exist($object->config('project.dir.data') . 'Php/' . $php_version . '/Fpm/php-fpm.conf')){
+            $command = 'cp ' . $object->config('project.dir.data') . 'Php/' . $php_version . '/Fpm/php-fpm.conf /etc/php/' . $php_version . '/fpm/php-fpm.conf';
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+            $command = 'chown root:root /etc/php/' . $php_version . '/fpm/php-fpm.conf';
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+            $command = 'chmod 640 /etc/php/' . $php_version . '/fpm/php-fpm.conf';
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+        }
+        if(File::exist($object->config('project.dir.data') . 'Php/' . $php_version . '/Fpm/Pool.d/www.conf')){
+            $command = 'cp ' . $object->config('project.dir.data') . 'Php/' . $php_version . '/Fpm/Pool.d/www.conf /etc/php/' . $php_version . '/fpm/pool.d/www.conf';
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+            $command = 'chown root:root /etc/php/' . $php_version . '/fpm/pool.d/www.conf';
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+            $command = 'chmod 640 /etc/php/' . $php_version . '/fpm/pool.d/www.conf';
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+        }
+        if(File::exist($object->config('project.dir.data') . 'Php/' . $php_version . '/Cli/php.ini')){
+            $command = 'cp ' . $object->config('project.dir.data') . 'Php/' . $php_version . '/Cli/php.ini /etc/php/' . $php_version . '/cli/php.ini';
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+            $command = 'chown root:root /etc/php/' . $php_version . '/cli/php.ini';
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+            $command = 'chmod 640 /etc/php/' . $php_version . '/cli/php.ini';
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
         }
     }
 }
