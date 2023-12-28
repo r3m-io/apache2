@@ -293,6 +293,17 @@ trait Configure {
         $parse = new Parse($object);
         $url = $object->config('controller.dir.data') . '001-site.conf';
         $read = File::read($url);
+        if(
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'root')
+        ){
+            //nothing
+        } else {
+            $options->server->root = $object->config('project.dir.public');
+            if(substr($options->server->root, -1, 1) == '/'){
+                $options->server->root = substr($options->server->root, 0, -1);
+            }
+        }
         $object->set('options', $options);
         $read = $parse->compile($read, $object->data());
 
