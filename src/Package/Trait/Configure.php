@@ -290,6 +290,37 @@ trait Configure {
             ]);
             throw $exception;
         }
+        if(
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'admin')
+        ){
+            //nothing
+        } else {
+            $admin = $object->config('server.admin');
+            if($admin){
+                $options->server->admin = $admin;
+            } else {
+                $exception = new Exception('Please configure a server admin, or provide the option (server.admin)...');
+                Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
+                    'options' => $options,
+                    'exception' => $exception
+                ]);
+                throw $exception;
+            }
+        }
+        if(
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'name')
+        ){
+            //nothing
+        } else {
+            $exception = new Exception('Please provide the option (server.name)...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
         $parse = new Parse($object);
         $url = $object->config('controller.dir.data') . '001-site.conf';
         $read = File::read($url);
@@ -300,19 +331,16 @@ trait Configure {
             //nothing
         } else {
             $options->server->root = $object->config('project.dir.public');
-            if(substr($options->server->root, -1, 1) == '/'){
-                $options->server->root = substr($options->server->root, 0, -1);
-            }
+        }
+        if(substr($options->server->root, -1, 1) === '/'){
+            $options->server->root = substr($options->server->root, 0, -1);
         }
         $object->set('options', $options);
         $read = $parse->compile($read, $object->data());
-
-        echo $read . PHP_EOL;
-
-
-//        d($read);
-        die;
-
+        $dir = '/etc/apache2/sites-available/';
+        $number = sprintf("%'.03d", File::count($dir));
+        $url = $dir . $number . '-' . str_replace('.', '-', $options->server->name) . $object->config('extension.conf');
+        ddd($url);
     }
 
     /**
