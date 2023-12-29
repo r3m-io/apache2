@@ -595,7 +595,7 @@ trait Configure {
             foreach ($read as $file){
                 if($file->type === File::TYPE){
                     if(stristr($file->name,str_replace('.', '-', $options->server->name)) !== false){
-                        File::delete($file->ur);
+                        File::delete($file->url);
                         $is_delete = true;
                         break;
                     }
