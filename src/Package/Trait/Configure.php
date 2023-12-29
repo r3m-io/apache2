@@ -353,8 +353,8 @@ trait Configure {
             $options->server->root = substr($options->server->root, 0, -1);
         }
         $environments = [
-            'development',
-            'production'
+            'production',
+            'development'
         ];
         foreach($environments as $environment){
             if($environment === Config::MODE_DEVELOPMENT){
