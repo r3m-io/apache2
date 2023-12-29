@@ -938,9 +938,12 @@ trait Configure {
             $options->req .
             ' -newkey ' .
             $options->newkey .
-            ' -keyout ' . $options->keyout.
-            ' -out ' . $options->out .
-            ' -days '. $options->days.
+            ' -keyout ' .
+            $options->keyout.
+            ' -out ' .
+            $options->out .
+            ' -days '.
+            $options->days.
             ' -nodes -subj ' . "\"/C=$country/ST=$state/L=$locality/O=$organization/OU=$unit/CN=$name/emailAddress=$email\"";
         $dir = $object->config('project.dir.data') . 'Ssl';
         Dir::create($dir, Dir::CHMOD);
