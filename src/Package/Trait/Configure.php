@@ -559,6 +559,57 @@ trait Configure {
     }
 
     /**
+     * @throws ObjectException
+     * @throws Exception
+     */
+    public function apache2_site_delete($options=[]): void
+    {
+        $options = Core::object($options, Core::OBJECT_OBJECT);
+        $object = $this->object();
+        if ($object->config(Config::POSIX_ID) !== 0) {
+            $exception = new Exception('Only root can configure apache2_site_disable...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.disable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        if(
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'name')
+        ){
+            //nothing
+        } else {
+            $exception = new Exception('Please provide the option (server.name)...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.enable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        $url = '/etc/apache2/sites-available/';
+        $dir = new Dir();
+        $read = $dir->read($url);
+        $is_delete = false;
+        if($read && is_array($read)){
+            foreach ($read as $file){
+                if($file->type === File::TYPE){
+                    if(stristr($file->name,str_replace('.', '-', $options->server->name)) !== false){
+                        File::delete($file->ur);
+                        $is_delete = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if($is_delete){
+            echo 'Site ' . $options->server->name . ' deleted.' . PHP_EOL;
+        } else {
+            echo 'Site ' . $options->server->name . ' not found.' . PHP_EOL;
+        }
+    }
+
+    /**
      * @throws Exception
      */
     public function php_restart(): void
