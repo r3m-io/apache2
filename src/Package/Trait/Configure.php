@@ -239,6 +239,25 @@ trait Configure {
     /**
      * @throws Exception
      */
+    public function apache2_reload(): void
+    {
+        $object = $this->object();
+        if($object->config(Config::POSIX_ID) !== 0){
+            return;
+        }
+        $command = 'service apache2 rload';
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
     public function apache2_start(): void
     {
         $object = $this->object();
