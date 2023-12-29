@@ -357,6 +357,9 @@ trait Configure {
             'development'
         ];
         foreach($environments as $environment){
+            if(!property_exists($options, $environment)){
+                continue;
+            }
             if($environment === Config::MODE_DEVELOPMENT){
                 $explode = explode('.', $options->server->name);
                 $count = count($explode);
@@ -966,15 +969,6 @@ trait Configure {
         Dir::change($dir);
         exec($command, $output);
         echo implode(PHP_EOL, $output) . PHP_EOL;
-        /*
-        Core::execute($object, $command, $output, $notification);
-        if(!empty($output)){
-            echo $output . PHP_EOL;
-        }
-        if(!empty($notification)){
-            echo $notification . PHP_EOL;
-        }
-        */
         File::permission($object, [
             'dir' => $dir,
             'keyout' => $dir . $options->keyout,
