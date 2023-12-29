@@ -510,7 +510,7 @@ trait Configure {
             ]);
             throw $exception;
         }
-        $url = '/etc/apache2/sites-available/';
+        $url = '/etc/apache2/sites-enabled/';
         $dir = new Dir();
         $read = $dir->read($url);
         $is_disabled = false;
