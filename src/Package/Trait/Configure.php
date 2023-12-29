@@ -945,7 +945,7 @@ trait Configure {
             ' -days '.
             $options->days.
             ' -nodes -subj ' . "\"/C=$country/ST=$state/L=$locality/O=$organization/OU=$unit/CN=$name/emailAddress=$email\"";
-        $dir = $object->config('project.dir.data') . 'Ssl';
+        $dir = $object->config('project.dir.data') . 'Ssl' . $object->config('ds');
         Dir::create($dir, Dir::CHMOD);
         Dir::change($dir);
         exec($command, $output);
