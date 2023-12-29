@@ -35,6 +35,7 @@ class Cli extends Controller {
         '{{binary()}} r3m_io/basic apache2 site ...  | delete',
         '{{binary()}} r3m_io/basic apache2 site ...  | disable',
         '{{binary()}} r3m_io/basic apache2 site ...  | enable',
+        '{{binary()}} r3m_io/basic apache2 site ...  | has',
         '{{binary()}} r3m_io/basic php backup        | php backup',
         '{{binary()}} r3m_io/basic php restore       | php restore',
         '{{binary()}} r3m_io/basic php restart       | php restart',
