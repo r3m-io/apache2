@@ -361,8 +361,7 @@ trait Configure {
                 $explode = explode('.', $options->server->name);
                 $count = count($explode);
                 if($count === 2){
-                    $options->server->name = $explode[0] . '.' . $environment . '.' . $object->config('localhost.extension');
-                    ddd($options);
+                    $options->server->name = $explode[0] . '.' . $object->config('localhost.extension');
                 } else {
                     throw new Exception('server name should exist of domain and extension, for example: r3m.io');
                 }
