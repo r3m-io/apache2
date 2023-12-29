@@ -945,6 +945,9 @@ trait Configure {
         $dir = $object->config('project.dir.data') . 'Ssl';
         Dir::create($dir, Dir::CHMOD);
         Dir::change($dir);
+        exec($command, $output);
+        echo implode(PHP_EOL, $output) . PHP_EOL;
+        /*
         Core::execute($object, $command, $output, $notification);
         if(!empty($output)){
             echo $output . PHP_EOL;
@@ -952,6 +955,7 @@ trait Configure {
         if(!empty($notification)){
             echo $notification . PHP_EOL;
         }
+        */
         File::permission($object, [
             'dir' => $dir,
             'keyout' => $dir . $options->keyout,
