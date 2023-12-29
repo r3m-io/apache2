@@ -758,8 +758,9 @@ trait Configure {
     /**
      * @throws Exception
      */
-    public static function restore(App $object, $event, $options=[]): void
+    public function php_restore(): void
     {
+        $object = $this->object();
         if($object->config(Config::POSIX_ID) !== 0){
             return;
         }
@@ -872,5 +873,89 @@ trait Configure {
                 echo $notification . PHP_EOL;
             }
         }
+    }
+
+    /**
+     * @throws ObjectException
+     * @throws Exception
+     */
+    public function openssl_init($options=[]): void
+    {
+        $options = Core::object($options, Core::OBJECT_OBJECT);
+        $object = $this->object();
+        if ($object->config(Config::POSIX_ID) !== 0) {
+            $exception = new Exception('Only root can configure openssl_init...');
+            Event::trigger($object, 'r3m.io.basic.configure.openssl.init', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        if(!property_exists($options, 'country')){
+            $options->country = 'NL';
+        }
+        if(!property_exists($options, 'state')){
+            $options->state = 'Overijssel';
+        }
+        if(!property_exists($options, 'locality')){
+            $options->locality = 'Borne';
+        }
+        if(!property_exists($options, 'organization')){
+            $options->organization = 'r3m.io';
+        }
+        if(!property_exists($options, 'unit')){
+            $options->unit = 'Development';
+        }
+        if(!property_exists($options, 'name')){
+            $options->name = 'r3m.io';
+        }
+        if(!property_exists($options, 'email')) {
+            $options->email = 'development@r3m.io';
+        }
+        if(!property_exists($options, 'keyout')){
+            $options->keyout = 'key.key';
+        }
+        if(!property_exists($options, 'newkey')){
+            $options->newkey = 'rsa:2048';
+        }
+        if(!property_exists($options, 'req')){
+            $options->req = 'x509';
+        }
+        if(!property_exists($options, 'out')){
+            $options->out = 'cert.pem';
+        }
+        if(!property_exists($options, 'days')){
+            $options->days = 365;
+        }
+        $country = $options->country;
+        $state = $options->state;
+        $locality = $options->locality;
+        $organization = $options->organization;
+        $unit = $options->unit;
+        $name = $options->name;
+        $email = $options->email;
+        $command = 'openssl req 
+            -' . $options->req . '
+            -newkey ' . $options->newkey . '
+            -keyout ' . $options->keyout. ' 
+            -out ' . $options->out . ' 
+            -days '. $options->days. ' 
+            -nodes 
+            -subj ' . "/C=$country/ST=$state/L=$locality/O=$organization/OU=$unit/CN=$name/emailAddress=$email";
+        $dir = $object->config('project.dir.data') . 'Ssl';
+        Dir::create($dir, Dir::CHMOD);
+        Dir::change($dir);
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+        File::permission($object, [
+            'dir' => $dir,
+            'keyout' => $dir . $options->keyout,
+            'out' => $dir . $options->out
+        ]);
     }
 }
