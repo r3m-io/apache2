@@ -432,7 +432,7 @@ trait Configure {
         $options = Core::object($options, Core::OBJECT_OBJECT);
         $object = $this->object();
         if ($object->config(Config::POSIX_ID) !== 0) {
-            $exception = new Exception('Only root can configure host add...');
+            $exception = new Exception('Only root can configure apache2_site_enable...');
             Event::trigger($object, 'r3m.io.basic.configure.apache2.site.enable', [
                 'options' => $options,
                 'exception' => $exception
@@ -476,6 +476,64 @@ trait Configure {
         }
         if($is_enabled){
             echo 'Site ' . $options->server->name . ' enabled.' . PHP_EOL;
+        } else {
+            echo 'Site ' . $options->server->name . ' not found.' . PHP_EOL;
+        }
+    }
+
+    /**
+     * @throws ObjectException
+     * @throws Exception
+     */
+    public function apache2_site_disable($options=[]): void
+    {
+        $options = Core::object($options, Core::OBJECT_OBJECT);
+        $object = $this->object();
+        if ($object->config(Config::POSIX_ID) !== 0) {
+            $exception = new Exception('Only root can configure apache2_site_disable...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.disable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        if(
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'name')
+        ){
+            //nothing
+        } else {
+            $exception = new Exception('Please provide the option (server.name)...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.enable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        $url = '/etc/apache2/sites-available/';
+        $dir = new Dir();
+        $read = $dir->read($url);
+        $is_disabled = false;
+        if($read && is_array($read)){
+            foreach ($read as $file){
+                if($file->type === File::TYPE){
+                    if(stristr($file->name,str_replace('.', '-', $options->server->name)) !== false){
+                        $command = 'a2dissite ' . $file->name;
+                        Core::execute($object, $command, $output, $notification);
+                        if(!empty($output)){
+                            echo $output . PHP_EOL;
+                        }
+                        if(!empty($notification)){
+                            echo $notification . PHP_EOL;
+                        }
+                        $is_disabled = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if($is_disabled){
+            echo 'Site ' . $options->server->name . ' disabled.' . PHP_EOL;
         } else {
             echo 'Site ' . $options->server->name . ' not found.' . PHP_EOL;
         }
