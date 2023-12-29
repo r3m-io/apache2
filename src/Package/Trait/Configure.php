@@ -8,6 +8,7 @@ use R3m\Io\Module\Dir;
 use R3m\Io\Module\Core;
 use R3m\Io\Module\Event;
 use R3m\Io\Module\File;
+use R3m\Io\Module\Host;
 use R3m\Io\Module\Parse;
 use R3m\Io\Module\Sort;
 
@@ -340,9 +341,6 @@ trait Configure {
             ]);
             throw $exception;
         }
-        $parse = new Parse($object);
-        $url = $object->config('controller.dir.data') . '001-site.conf';
-        $read = File::read($url);
         if(
             property_exists($options, 'server') &&
             property_exists($options->server, 'root')
@@ -354,46 +352,65 @@ trait Configure {
         if(substr($options->server->root, -1, 1) === '/'){
             $options->server->root = substr($options->server->root, 0, -1);
         }
-        $dir_available = '/etc/apache2/sites-available/';
-        $dir = new Dir();
-        $files = $dir->read($dir_available);
-        if(
-            $files &&
-            is_array($files)
-        ){
-            foreach($files as $file){
-                if($file->type === File::TYPE){
-                    if(stristr($file->name, str_replace('.', '-', $options->server->name)) !== false){
-                        $exception = new Exception('Site ' . $options->server->name . ' already exists...');
-                        Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
-                            'options' => $options,
-                            'exception' => $exception
-                        ]);
-                        throw $exception;
+        $environments = [
+            'development',
+            'production'
+        ];
+        foreach($environments as $environment){
+            if($environment === Config::MODE_DEVELOPMENT){
+                $explode = explode('.', $options->server->name);
+                $count = count($explode);
+                if($count === 2){
+                    $options->server->name = $explode[0] . '.' . $environment . '.' . $object->config('localhost.extension');
+                    ddd($options);
+                } else {
+                    throw new Exception('server name should exist of domain and extension, for example: r3m.io');
+                }
+            }
+            $parse = new Parse($object);
+            $url = $object->config('controller.dir.data') . '001-site.' . $environment . '.conf';
+            $read = File::read($url);
+            $dir_available = '/etc/apache2/sites-available/';
+            $dir = new Dir();
+            $files = $dir->read($dir_available);
+            if(
+                $files &&
+                is_array($files)
+            ){
+                foreach($files as $file){
+                    if($file->type === File::TYPE){
+                        if(stristr($file->name, str_replace('.', '-', $options->server->name)) !== false){
+                            $exception = new Exception('Site ' . $options->server->name . ' already exists...');
+                            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
+                                'options' => $options,
+                                'exception' => $exception
+                            ]);
+                            throw $exception;
+                        }
                     }
                 }
             }
-        }
-        $object->set('options', $options);
-        $read = $parse->compile($read, $object->data());
-        $number = sprintf("%'.03d", File::count($dir_available));
-        $url = $dir_available . $number . '-' . str_replace('.', '-', $options->server->name) . $object->config('extension.conf');
-        File::write($url, $read);
-        $command = 'chmod 640 ' . $url;
-        Core::execute($object, $command, $output, $notification);
-        if(!empty($output)){
-            echo $output . PHP_EOL;
-        }
-        if(!empty($notification)){
-            echo $notification . PHP_EOL;
-        }
-        $command = 'chown root:root ' . $url;
-        Core::execute($object, $command, $output, $notification);
-        if(!empty($output)){
-            echo $output . PHP_EOL;
-        }
-        if(!empty($notification)){
-            echo $notification . PHP_EOL;
+            $object->set('options', $options);
+            $read = $parse->compile($read, $object->data());
+            $number = sprintf("%'.03d", File::count($dir_available));
+            $url = $dir_available . $number . '-' . str_replace('.', '-', $options->server->name) . $object->config('extension.conf');
+            File::write($url, $read);
+            $command = 'chmod 640 ' . $url;
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+            $command = 'chown root:root ' . $url;
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
         }
     }
 
