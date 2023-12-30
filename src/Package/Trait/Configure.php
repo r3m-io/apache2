@@ -302,6 +302,7 @@ trait Configure {
     {
         $options = Core::object($options, Core::OBJECT_OBJECT);
         $object = $this->object();
+        ddd($options);
         if ($object->config(Config::POSIX_ID) !== 0) {
             $exception = new Exception('Only root can configure apache2 site create...');
             Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
