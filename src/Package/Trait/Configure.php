@@ -246,7 +246,7 @@ trait Configure {
         if($object->config(Config::POSIX_ID) !== 0){
             return;
         }
-        $command = 'service apache2 rload';
+        $command = 'service apache2 reload';
         Core::execute($object, $command, $output, $notification);
         if(!empty($output)){
             echo $output . PHP_EOL;
