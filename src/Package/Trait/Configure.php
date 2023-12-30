@@ -302,7 +302,6 @@ trait Configure {
     {
         $options = Core::object($options, Core::OBJECT_OBJECT);
         $object = $this->object();
-        ddd($options);
         if ($object->config(Config::POSIX_ID) !== 0) {
             $exception = new Exception('Only root can configure apache2 site create...');
             Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
@@ -382,7 +381,15 @@ trait Configure {
             ){
                 foreach($files as $file){
                     if($file->type === File::TYPE){
-                        if(stristr($file->name, str_replace('.', '-', $options->server->name)) !== false){
+                        if(
+                            stristr($file->name, str_replace('.', '-', $options->server->name)) !== false &&
+                            property_exists($options, 'force')
+                        ){
+                            if($options->force === true){
+                                File::delete($file->url);
+                            }
+                        }
+                        else if(stristr($file->name, str_replace('.', '-', $options->server->name)) !== false){
                             $exception = new Exception('Site ' . $options->server->name . ' already exists...');
                             Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
                                 'options' => $options,
