@@ -1,2 +1,2 @@
 {{R3M}}
-{{Package.R3m.Io.Basic:Configure:apache2.reload()}}
+{{Package.R3m.Io.Basic:Main:apache2.reload()}}

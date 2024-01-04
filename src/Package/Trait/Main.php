@@ -18,7 +18,7 @@ use Exception;
 
 use R3m\Io\Exception\DirectoryCreateException;
 use R3m\Io\Exception\ObjectException;
-trait Configure {
+trait Main {
 
     /**
      * @throws DirectoryCreateException
