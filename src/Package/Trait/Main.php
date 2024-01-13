@@ -356,11 +356,13 @@ trait Main {
             'production',
             'development'
         ];
+        $is_missing = true;
         foreach($environments as $environment){
             if(!property_exists($options, $environment)){
                 continue;
             }
             if($environment === Config::MODE_DEVELOPMENT){
+                $is_missing = false;
                 $explode = explode('.', $options->server->name);
                 $count = count($explode);
                 if($count === 2){
@@ -371,7 +373,6 @@ trait Main {
             }
             $parse = new Parse($object);
             $url = $object->config('controller.dir.data') . '001-site.' . $environment . '.conf';
-            ddd($url);
             $read = File::read($url);
             $dir_available = '/etc/apache2/sites-available/';
             $dir = new Dir();
@@ -422,6 +423,9 @@ trait Main {
             if(!empty($notification)){
                 echo $notification . PHP_EOL;
             }
+        }
+        if($is_missing){
+            throw new Exception('Please provide the option (development and/or production)...');
         }
     }
 
