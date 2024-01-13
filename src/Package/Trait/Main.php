@@ -377,7 +377,7 @@ trait Main {
                 ){
                     $list = $options->server->alias;
                     foreach($list as $nr => $alias){
-                        $explode = $explode('.', $alias);
+                        $explode = explode('.', $alias);
                         $count = count($explode);
                         if($count === 3){
                             $list[$nr] = $explode[0] . '.' . $options->server->name;
