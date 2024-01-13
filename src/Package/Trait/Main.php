@@ -370,6 +370,23 @@ trait Main {
                 } else {
                     throw new Exception('server name should exist of domain and extension, for example: r3m.io');
                 }
+                if(
+                    property_exists($options, 'server') &&
+                    property_exists($options->server, 'alias') &&
+                    is_array($options->server->alias)
+                ){
+                    $list = $options->server->alias;
+                    foreach($list as $nr => $alias){
+                        $explode = $explode('.', $alias);
+                        $count = count($explode);
+                        if($count === 3){
+                            $list[$nr] = $explode[0] . '.' . $options->server->name;
+                        } else {
+                            throw new Exception('server alias should exist of domain and extension, for example: r3m.io');
+                        }
+                    }
+                    $options->server->alias = $list;
+                }
             }
             $parse = new Parse($object);
             $url = $object->config('controller.dir.data') . '001-site.' . $environment . '.conf';
