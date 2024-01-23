@@ -15,4 +15,3 @@ Submodule: {{$request.submodule|uppercase.first}}
 
 [01] Openssl options
 [02] Init openssl for development
-`
