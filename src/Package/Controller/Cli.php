@@ -27,6 +27,7 @@ class Cli extends Controller {
         '{{binary()}} r3m_io/basic apache2 reload    | apache2 reload',
         '{{binary()}} r3m_io/basic apache2 restart   | apache2 restart',
         '{{binary()}} r3m_io/basic apache2 restore   | apache2 restore',
+        '{{binary()}} r3m_io/basic apache2 site ...  | info',
         '{{binary()}} r3m_io/basic apache2 site ...  | create',
         '{{binary()}} r3m_io/basic apache2 site ...  | delete',
         '{{binary()}} r3m_io/basic apache2 site ...  | disable',
@@ -38,7 +39,7 @@ class Cli extends Controller {
         '{{binary()}} r3m_io/basic php backup        | php backup',
         '{{binary()}} r3m_io/basic php restore       | php restore',
         '{{binary()}} r3m_io/basic php restart       | php restart',
-        '{{binary()}} r3m_io/basic php start         | php start ',
+        '{{binary()}} r3m_io/basic php start         | php start',
         '{{binary()}} r3m_io/basic php stop          | php stop',
     ];
 
