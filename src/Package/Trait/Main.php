@@ -24,7 +24,7 @@ trait Main {
      * @throws DirectoryCreateException
      * @throws Exception
      */
-    public function apache2(): void
+    public function apache2_setup(): void
     {
         $object = $this->object();
         if($object->config(Config::POSIX_ID) !== 0){
