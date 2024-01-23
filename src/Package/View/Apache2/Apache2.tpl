@@ -24,6 +24,6 @@ Submodule: {{$request.submodule|uppercase.first}}
 [3] Reload Apache2 service
 [4] Restart Apache2 service
 [5] Restore Apache2 sites from Data/Apache2
-[6] Setup Apache2 service to handle the framework and php
+[6] Setup Apache2 service to handle the r3m_io/framework and PHP
 [7] Start Apache2 service
 [8] Stop Apache2 service
