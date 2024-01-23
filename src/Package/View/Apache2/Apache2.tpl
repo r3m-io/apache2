@@ -16,7 +16,7 @@ Submodule: {{$request.submodule|uppercase.first}}
 [04] {{binary()}} {{$request.package}} {{$request.module}} restart
 [05] {{binary()}} {{$request.package}} {{$request.module}} restore
 [06] {{binary()}} {{$request.package}} {{$request.module}} setup
-[07] {{binary()}} {{$request.package}} {{$request.module}} site info
+[07] {{binary()}} {{$request.package}} {{$request.module}} site
 [08] {{binary()}} {{$request.package}} {{$request.module}} site create
 [09] {{binary()}} {{$request.package}} {{$request.module}} site delete
 [10] {{binary()}} {{$request.package}} {{$request.module}} site disable
@@ -37,5 +37,5 @@ Submodule: {{$request.submodule|uppercase.first}}
 [10] Disable an apache2 site config
 [11] Enable an apache2 site config
 [12] Check if an apache2 site config exists
-[07] Start Apache2 service
-[08] Stop Apache2 service
+[13] Start Apache2 service
+[14] Stop Apache2 service

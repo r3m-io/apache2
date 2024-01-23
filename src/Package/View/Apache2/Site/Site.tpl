@@ -9,7 +9,8 @@ Submodule: {{$request.submodule|uppercase.first}}
 
 {{/if}}
 
-[1] {{binary()}} {{$request.package}} {{$request.module}} {{$request.submodule}} info
+[1] {{binary()}} {{$request.package}} {{$request.module}} {{$request.submodule}}
+
 [2] {{binary()}} {{$request.package}} {{$request.module}} {{$request.submodule}} create
 [3] {{binary()}} {{$request.package}} {{$request.module}} {{$request.submodule}} delete
 [4] {{binary()}} {{$request.package}} {{$request.module}} {{$request.submodule}} disable
