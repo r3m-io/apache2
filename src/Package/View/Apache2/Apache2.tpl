@@ -10,6 +10,7 @@ Submodule: {{$request.submodule|uppercase.first}}
 {{/if}}
 
 [1] {{binary()}} {{$request.package}} {{$request.module}}
+
 [2] {{binary()}} {{$request.package}} {{$request.module}} backup
 [3] {{binary()}} {{$request.package}} {{$request.module}} reload
 [4] {{binary()}} {{$request.package}} {{$request.module}} restart
