@@ -1,14 +1,15 @@
 <?php
-namespace Package\R3m\Io\Apache2\Trait;
+namespace Package\R3m\Io\Basic\Trait;
 
-use Event\R3m\Io\Framework\Php;
 use R3m\Io\App;
 use R3m\Io\Config;
 
-
 use R3m\Io\Module\Dir;
 use R3m\Io\Module\Core;
+use R3m\Io\Module\Event;
 use R3m\Io\Module\File;
+use R3m\Io\Module\Host;
+use R3m\Io\Module\Parse;
 use R3m\Io\Module\Sort;
 
 use R3m\Io\Node\Model\Node;
@@ -16,13 +17,14 @@ use R3m\Io\Node\Model\Node;
 use Exception;
 
 use R3m\Io\Exception\DirectoryCreateException;
-trait Configure {
+use R3m\Io\Exception\ObjectException;
+trait Main {
 
     /**
      * @throws DirectoryCreateException
      * @throws Exception
      */
-    public function apache2(): void
+    public function apache2_setup(): void
     {
         $object = $this->object();
         if($object->config(Config::POSIX_ID) !== 0){
@@ -155,7 +157,15 @@ trait Configure {
                 exec('chmod 640 ' . $destination);
                 exec('chown root:root ' . $destination);
                 $disabled = $object->config('server.site.disabled');
-                if(in_array($file->name, $disabled, true)){
+                if(
+                    $disabled &&
+                    is_array($disabled) &&
+                    in_array(
+                        $file->name,
+                        $disabled,
+                        true
+                    )
+                ){
                     $command = 'a2dissite ' . $file->name;
                     Core::execute($object, $command, $output, $notification);
                     if(!empty($output)){
@@ -230,6 +240,25 @@ trait Configure {
     /**
      * @throws Exception
      */
+    public function apache2_reload(): void
+    {
+        $object = $this->object();
+        if($object->config(Config::POSIX_ID) !== 0){
+            return;
+        }
+        $command = 'service apache2 reload';
+        Core::execute($object, $command, $output, $notification);
+        if(!empty($output)){
+            echo $output . PHP_EOL;
+        }
+        if(!empty($notification)){
+            echo $notification . PHP_EOL;
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
     public function apache2_start(): void
     {
         $object = $this->object();
@@ -262,6 +291,370 @@ trait Configure {
         }
         if(!empty($notification)){
             echo $notification . PHP_EOL;
+        }
+    }
+
+    /**
+     * @throws ObjectException
+     * @throws Exception
+     */
+    public function apache2_site_create($options=[]): void
+    {
+        $options = Core::object($options, Core::OBJECT_OBJECT);
+        $object = $this->object();
+        if ($object->config(Config::POSIX_ID) !== 0) {
+            $exception = new Exception('Only root can configure apache2 site create...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        if(
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'admin')
+        ){
+            //nothing
+        } else {
+            $admin = $object->config('server.admin');
+            if($admin){
+                $options->server->admin = $admin;
+            } else {
+                $exception = new Exception('Please configure a server admin, or provide the option (server.admin)...');
+                Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
+                    'options' => $options,
+                    'exception' => $exception
+                ]);
+                throw $exception;
+            }
+        }
+        if(
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'name')
+        ){
+            //nothing
+        } else {
+            $exception = new Exception('Please provide the option (server.name)...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        if(
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'root')
+        ){
+            //nothing
+        } else {
+            $options->server->root = $object->config('project.dir.public');
+        }
+        if(substr($options->server->root, -1, 1) === '/'){
+            $options->server->root = substr($options->server->root, 0, -1);
+        }
+        $environments = [
+            'production',
+            'development'
+        ];
+        $is_missing = true;
+        foreach($environments as $environment){
+            if(!property_exists($options, $environment)){
+                continue;
+            }
+            if($environment === Config::MODE_DEVELOPMENT){
+                $is_missing = false;
+                $explode = explode('.', $options->server->name);
+                $count = count($explode);
+                if($count === 2){
+                    $options->server->name = $explode[0] . '.' . $object->config('localhost.extension');
+                } else {
+                    throw new Exception('server name should exist of domain and extension, for example: r3m.io');
+                }
+                if(
+                    property_exists($options, 'server') &&
+                    property_exists($options->server, 'alias') &&
+                    is_array($options->server->alias)
+                ){
+                    $list = $options->server->alias;
+                    foreach($list as $nr => $alias){
+                        $explode = explode('.', $alias);
+                        $count = count($explode);
+                        if($count === 3){
+                            $list[$nr] = $explode[0] . '.' . $options->server->name;
+                        } else {
+                            throw new Exception('server alias should exist of domain and extension, for example: r3m.io');
+                        }
+                    }
+                    $options->server->alias = $list;
+                }
+            }
+            $parse = new Parse($object);
+            $url = $object->config('controller.dir.data') . '001-site.' . $environment . '.conf';
+            $read = File::read($url);
+            $dir_available = '/etc/apache2/sites-available/';
+            $dir = new Dir();
+            $files = $dir->read($dir_available);
+            if(
+                $files &&
+                is_array($files)
+            ){
+                foreach($files as $file){
+                    if($file->type === File::TYPE){
+                        if(
+                            stristr($file->name, str_replace('.', '-', $options->server->name)) !== false &&
+                            property_exists($options, 'force')
+                        ){
+                            if($options->force === true){
+                                File::delete($file->url);
+                            }
+                        }
+                        else if(stristr($file->name, str_replace('.', '-', $options->server->name)) !== false){
+                            $exception = new Exception('Site ' . $options->server->name . ' already exists...');
+                            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.create', [
+                                'options' => $options,
+                                'exception' => $exception
+                            ]);
+                            throw $exception;
+                        }
+                    }
+                }
+            }
+            $object->set('options', $options);
+            $read = $parse->compile($read, $object->data());
+            $number = sprintf("%'.03d", File::count($dir_available));
+            $url = $dir_available . $number . '-' . str_replace('.', '-', $options->server->name) . $object->config('extension.conf');
+            File::write($url, $read);
+            $command = 'chmod 640 ' . $url;
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+            $command = 'chown root:root ' . $url;
+            Core::execute($object, $command, $output, $notification);
+            if(!empty($output)){
+                echo $output . PHP_EOL;
+            }
+            if(!empty($notification)){
+                echo $notification . PHP_EOL;
+            }
+        }
+        if($is_missing){
+            throw new Exception('Please provide the option (development and/or production)...');
+        }
+    }
+
+    /**
+     * @throws ObjectException
+     * @throws Exception
+     */
+    public function apache2_site_has($options=[]): bool
+    {
+        $options = Core::object($options, Core::OBJECT_OBJECT);
+        $object = $this->object();
+        if ($object->config(Config::POSIX_ID) !== 0) {
+            $exception = new Exception('Only root can configure host add...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.enable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        if (
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'name')
+        ) {
+            //nothing
+        } else {
+            $exception = new Exception('Please provide the option (server.name)...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.enable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        $url = '/etc/apache2/sites-available/';
+        $dir = new Dir();
+        $read = $dir->read($url);
+        $is_enabled = false;
+        if ($read && is_array($read)) {
+            foreach ($read as $file) {
+                if ($file->type === File::TYPE) {
+                    if (stristr($file->name, str_replace('.', '-', $options->server->name)) !== false) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @throws ObjectException
+     * @throws Exception
+     */
+    public function apache2_site_enable($options=[]): void
+    {
+        $options = Core::object($options, Core::OBJECT_OBJECT);
+        $object = $this->object();
+        if ($object->config(Config::POSIX_ID) !== 0) {
+            $exception = new Exception('Only root can configure apache2_site_enable...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.enable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        if(
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'name')
+        ){
+            //nothing
+        } else {
+            $exception = new Exception('Please provide the option (server.name)...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.enable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        $url = '/etc/apache2/sites-available/';
+        $dir = new Dir();
+        $read = $dir->read($url);
+        $is_enabled = false;
+        if($read && is_array($read)){
+            foreach ($read as $file){
+                if($file->type === File::TYPE){
+                    if(stristr($file->name,str_replace('.', '-', $options->server->name)) !== false){
+                        $command = 'a2ensite ' . $file->name;
+                        Core::execute($object, $command, $output, $notification);
+                        if(!empty($output)){
+                            echo $output . PHP_EOL;
+                        }
+                        if(!empty($notification)){
+                            echo $notification . PHP_EOL;
+                        }
+                        $is_enabled = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if($is_enabled){
+            echo 'Site ' . $options->server->name . ' enabled.' . PHP_EOL;
+        } else {
+            echo 'Site ' . $options->server->name . ' not found.' . PHP_EOL;
+        }
+    }
+
+    /**
+     * @throws ObjectException
+     * @throws Exception
+     */
+    public function apache2_site_disable($options=[]): void
+    {
+        $options = Core::object($options, Core::OBJECT_OBJECT);
+        $object = $this->object();
+        if ($object->config(Config::POSIX_ID) !== 0) {
+            $exception = new Exception('Only root can configure apache2_site_disable...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.disable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        if(
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'name')
+        ){
+            //nothing
+        } else {
+            $exception = new Exception('Please provide the option (server.name)...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.enable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        $url = '/etc/apache2/sites-enabled/';
+        $dir = new Dir();
+        $read = $dir->read($url);
+        $is_disabled = false;
+        if($read && is_array($read)){
+            foreach ($read as $file){
+                if($file->type === File::TYPE){
+                    if(stristr($file->name,str_replace('.', '-', $options->server->name)) !== false){
+                        $command = 'a2dissite ' . $file->name;
+                        Core::execute($object, $command, $output, $notification);
+                        if(!empty($output)){
+                            echo $output . PHP_EOL;
+                        }
+                        if(!empty($notification)){
+                            echo $notification . PHP_EOL;
+                        }
+                        $is_disabled = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if($is_disabled){
+            echo 'Site ' . $options->server->name . ' disabled.' . PHP_EOL;
+        } else {
+            echo 'Site ' . $options->server->name . ' not found.' . PHP_EOL;
+        }
+    }
+
+    /**
+     * @throws ObjectException
+     * @throws Exception
+     */
+    public function apache2_site_delete($options=[]): void
+    {
+        $options = Core::object($options, Core::OBJECT_OBJECT);
+        $object = $this->object();
+        if ($object->config(Config::POSIX_ID) !== 0) {
+            $exception = new Exception('Only root can configure apache2_site_disable...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.disable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        if(
+            property_exists($options, 'server') &&
+            property_exists($options->server, 'name')
+        ){
+            //nothing
+        } else {
+            $exception = new Exception('Please provide the option (server.name)...');
+            Event::trigger($object, 'r3m.io.basic.configure.apache2.site.enable', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        $url = '/etc/apache2/sites-available/';
+        $dir = new Dir();
+        $read = $dir->read($url);
+        $is_delete = false;
+        if($read && is_array($read)){
+            foreach ($read as $file){
+                if($file->type === File::TYPE){
+                    if(stristr($file->name,str_replace('.', '-', $options->server->name)) !== false){
+                        File::delete($file->url);
+                        $is_delete = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if($is_delete){
+            echo 'Site ' . $options->server->name . ' deleted.' . PHP_EOL;
+        } else {
+            echo 'Site ' . $options->server->name . ' not found.' . PHP_EOL;
         }
     }
 
@@ -414,8 +807,9 @@ trait Configure {
     /**
      * @throws Exception
      */
-    public static function restore(App $object, $event, $options=[]): void
+    public function php_restore(): void
     {
+        $object = $this->object();
         if($object->config(Config::POSIX_ID) !== 0){
             return;
         }
@@ -528,5 +922,87 @@ trait Configure {
                 echo $notification . PHP_EOL;
             }
         }
+    }
+
+    /**
+     * @throws ObjectException
+     * @throws Exception
+     */
+    public function openssl_init($options=[]): void
+    {
+        $options = Core::object($options, Core::OBJECT_OBJECT);
+        $object = $this->object();
+        if ($object->config(Config::POSIX_ID) !== 0) {
+            $exception = new Exception('Only root can configure openssl_init...');
+            Event::trigger($object, 'r3m.io.basic.configure.openssl.init', [
+                'options' => $options,
+                'exception' => $exception
+            ]);
+            throw $exception;
+        }
+        if(!property_exists($options, 'country')){
+            $options->country = 'NL';
+        }
+        if(!property_exists($options, 'state')){
+            $options->state = 'Overijssel';
+        }
+        if(!property_exists($options, 'locality')){
+            $options->locality = 'Borne';
+        }
+        if(!property_exists($options, 'organization')){
+            $options->organization = 'r3m.io';
+        }
+        if(!property_exists($options, 'unit')){
+            $options->unit = 'Development';
+        }
+        if(!property_exists($options, 'name')){
+            $options->name = 'r3m.io';
+        }
+        if(!property_exists($options, 'email')) {
+            $options->email = 'development@r3m.io';
+        }
+        if(!property_exists($options, 'keyout')){
+            $options->keyout = 'key.key';
+        }
+        if(!property_exists($options, 'newkey')){
+            $options->newkey = 'rsa:2048';
+        }
+        if(!property_exists($options, 'req')){
+            $options->req = 'x509';
+        }
+        if(!property_exists($options, 'out')){
+            $options->out = 'cert.pem';
+        }
+        if(!property_exists($options, 'days')){
+            $options->days = 365;
+        }
+        $country = $options->country;
+        $state = $options->state;
+        $locality = $options->locality;
+        $organization = $options->organization;
+        $unit = $options->unit;
+        $name = $options->name;
+        $email = $options->email;
+        $command = 'openssl req -' .
+            $options->req .
+            ' -newkey ' .
+            $options->newkey .
+            ' -keyout ' .
+            $options->keyout.
+            ' -out ' .
+            $options->out .
+            ' -days '.
+            $options->days.
+            ' -nodes -subj ' . "\"/C=$country/ST=$state/L=$locality/O=$organization/OU=$unit/CN=$name/emailAddress=$email\"";
+        $dir = $object->config('project.dir.data') . 'Ssl' . $object->config('ds');
+        Dir::create($dir, Dir::CHMOD);
+        Dir::change($dir);
+        exec($command, $output);
+        echo implode(PHP_EOL, $output) . PHP_EOL;
+        File::permission($object, [
+            'dir' => $dir,
+            'keyout' => $dir . $options->keyout,
+            'out' => $dir . $options->out
+        ]);
     }
 }

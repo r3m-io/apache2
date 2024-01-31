@@ -1,5 +1,5 @@
 <?php
-namespace Package\R3m\Io\Apache2\Trait;
+namespace Package\R3m\Io\Basic\Trait;
 
 use R3m\Io\App;
 
