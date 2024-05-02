@@ -11,6 +11,7 @@ use Exception;
 
 use R3m\Io\Exception\DirectoryCreateException;
 use R3m\Io\Exception\FileWriteException;
+use R3m\Io\Exception\ObjectException;
 
 trait Cron {
 
@@ -94,6 +95,9 @@ trait Cron {
         }
     }
 
+    /**
+     * @throws ObjectException
+     */
     public function restart($flags, $options): void
     {
         $command = 'service cron restart';
@@ -107,6 +111,9 @@ trait Cron {
         }
     }
 
+    /**
+     * @throws ObjectException
+     */
     public function start($flags, $options): void
     {
         $command = 'service cron start';
@@ -120,6 +127,9 @@ trait Cron {
         }
     }
 
+    /**
+     * @throws ObjectException
+     */
     public function stop($flags, $options): void
     {
         $command = 'service cron stop';
