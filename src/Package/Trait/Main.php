@@ -1062,7 +1062,7 @@ trait Main {
     /**
      * @throws FileWriteException
      */
-    public function cron_restore($flags, $options): void
+    public function cron_restore($flags=null, $options=null): void
     {
         $object = $this->object();
         $url = '/etc/cron.d/r3m_io';
@@ -1147,7 +1147,6 @@ trait Main {
                     strpos($line, '/etc/cron.d') !== false &&
                     strpos($line, '/etc/cron.daily') === false
                 ){
-                    echo $line . PHP_EOL;
                     $has_cron_d = true;
                     break;
                 }
@@ -1165,6 +1164,10 @@ trait Main {
                 if ($notification) {
                     echo $notification;
                 }
+            }
+            $url = '/etc/cron.d/r3m_io';
+            if(!File::exist($url)){
+                $this->cron_restore();
             }
         }
     }
