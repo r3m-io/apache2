@@ -1133,7 +1133,7 @@ trait Main {
      * @throws ObjectException
      * @throws FileWriteException
      */
-    public function cron_init($flags, $options): void
+    public function cron_init(): void
     {
         $url = '/etc/crontab';
         $read = File::read($url);

@@ -1,2 +1,2 @@
 {{R3M}}
-{{Package.R3m.Io.Basic:Main:cron.init(flags(), options())}}
+{{Package.R3m.Io.Basic:Main:cron.init()}}
