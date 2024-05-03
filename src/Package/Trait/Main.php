@@ -1144,7 +1144,8 @@ trait Main {
             foreach($read as $nr => $line){
                 if(
                     strpos($line, 'run-parts') !== false &&
-                    strpos($line, '/etc/cron.d') !== false
+                    strpos($line, '/etc/cron.d') !== false &&
+                    strpos($line, '/etc/cron.daily') === false
                 ){
                     echo $line . PHP_EOL;
                     $has_cron_d = true;
