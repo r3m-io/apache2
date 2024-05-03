@@ -1076,7 +1076,7 @@ trait Main {
         ;
         if(File::exist($source)){
             File::write($url, File::read($source));
-            $this->update($flags, $options);
+            $this->cron_init();
 
         }
     }
