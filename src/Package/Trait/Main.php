@@ -1,23 +1,21 @@
 <?php
 namespace Package\R3m\Io\Basic\Trait;
 
-use R3m\Io\App;
 use R3m\Io\Config;
 
+use R3m\Io\Exception\FileWriteException;
 use R3m\Io\Module\Dir;
 use R3m\Io\Module\Core;
 use R3m\Io\Module\Event;
 use R3m\Io\Module\File;
-use R3m\Io\Module\Host;
 use R3m\Io\Module\Parse;
 use R3m\Io\Module\Sort;
-
-use R3m\Io\Node\Model\Node;
 
 use Exception;
 
 use R3m\Io\Exception\DirectoryCreateException;
 use R3m\Io\Exception\ObjectException;
+
 trait Main {
 
     /**
@@ -1004,5 +1002,167 @@ trait Main {
             'keyout' => $dir . $options->keyout,
             'out' => $dir . $options->out
         ]);
+    }
+
+    public function cron_backup($flags, $options): void
+    {
+        $object = $this->object();
+        $url = '/etc/cron.d/r3m_io';
+        $environment = $object->config('framework.environment');
+        if(File::exist($url)){
+            $target = $object->config('project.dir.data') .
+                'Cron' .
+                $object->config('ds') .
+                'Cron' .
+                '.' .
+                $environment
+            ;
+            File::write($target, File::read($url));
+        } else {
+            //create cron file for each environment.
+            $environments = [
+                'development',
+                'test',
+                'staging',
+                'replica',
+                'production'
+            ];
+
+            $dir = $object->config('project.dir.data') .
+                'Cron' .
+                $object->config('ds')
+            ;
+            $source = $object->config('project.dir.package') .
+                'R3m' .
+                $object->config('ds') .
+                'Io' .
+                $object->config('ds') .
+                'Basic' .
+                $object->config('ds') .
+                'Data' .
+                $object->config('ds') .
+                'Cron'
+            ;
+            foreach($environments as $record){
+                $url = $dir . 'Cron' . '.' . $record;
+                if(!File::exist($url)){
+                    Dir::create($dir, Dir::CHMOD);
+                    File::write($url, File::read($source));
+                    if($environment === Config::MODE_DEVELOPMENT){
+                        File::permission($object, [
+                            'url' => $url,
+                            'dir' => $dir
+                        ]);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @throws FileWriteException
+     */
+    public function cron_restore($flags, $options): void
+    {
+        $object = $this->object();
+        $url = '/etc/cron.d/r3m_io';
+        $environment = $object->config('framework.environment');
+        $source = $object->config('project.dir.data') .
+            'Cron' .
+            $object->config('ds') .
+            'Cron' .
+            '.' .
+            $environment
+        ;
+        if(File::exist($source)){
+            File::write($url, File::read($source));
+            $this->update($flags, $options);
+
+        }
+    }
+
+    /**
+     * @throws ObjectException
+     */
+    public function cron_restart($flags, $options): void
+    {
+        $command = 'service cron restart';
+        $object = $this->object();
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output;
+        }
+        if($notification){
+            echo $notification;
+        }
+    }
+
+    /**
+     * @throws ObjectException
+     */
+    public function cron_start($flags, $options): void
+    {
+        $command = 'service cron start';
+        $object = $this->object();
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output;
+        }
+        if($notification){
+            echo $notification;
+        }
+    }
+
+    /**
+     * @throws ObjectException
+     */
+    public function cron_stop($flags, $options): void
+    {
+        $command = 'service cron stop';
+        $object = $this->object();
+        Core::execute($object, $command, $output, $notification);
+        if($output){
+            echo $output;
+        }
+        if($notification){
+            echo $notification;
+        }
+    }
+
+    /**
+     * @throws ObjectException
+     * @throws FileWriteException
+     */
+    public function cron_init($flags, $options): void
+    {
+        $url = '/etc/crontab';
+        $read = File::read($url);
+
+        if($read){
+            $read = explode(PHP_EOL, $read);
+            $has_cron_d = false;
+            foreach($read as $nr => $line){
+                if(strpos($line, 'run-parts ') !== false &&
+                    strpos($line, '/etc/cron.d') !== false
+                ){
+                    $has_cron_d = true;
+                    break;
+                }
+            }
+            if($has_cron_d === false) {
+                $read[] = '*/1 *   * * *   root    cd / && run-parts --report /etc/cron.d';
+                $read = implode(PHP_EOL, $read);
+                File::write($url, $read);
+                $command = 'service cron reload';
+                $object = $this->object();
+                Core::execute($object, $command, $output, $notification);
+                if ($output) {
+                    echo $output;
+                }
+                if ($notification) {
+                    echo $notification;
+                }
+            }
+        }
     }
 }
