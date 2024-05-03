@@ -1155,6 +1155,10 @@ trait Main {
                 $read[] = '*/1 *   * * *   root    cd / && run-parts --report /etc/cron.d';
                 $read = implode(PHP_EOL, $read);
                 File::write($url, $read);
+                $url = '/etc/cron.d/r3m_io';
+                if(!File::exist($url)){
+                    $this->cron_restore();
+                }
                 $command = 'service cron restart';
                 $object = $this->object();
                 Core::execute($object, $command, $output, $notification);
@@ -1164,10 +1168,6 @@ trait Main {
                 if ($notification) {
                     echo $notification;
                 }
-            }
-            $url = '/etc/cron.d/r3m_io';
-            if(!File::exist($url)){
-                $this->cron_restore();
             }
         }
     }
