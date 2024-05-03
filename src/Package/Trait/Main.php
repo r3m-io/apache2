@@ -1142,13 +1142,15 @@ trait Main {
             $read = explode(PHP_EOL, $read);
             $has_cron_d = false;
             foreach($read as $nr => $line){
-                if(strpos($line, 'run-parts ') !== false &&
+                if(
+                    strpos($line, 'run-parts') !== false &&
                     strpos($line, '/etc/cron.d') !== false
                 ){
                     $has_cron_d = true;
                     break;
                 }
             }
+            dddd($has_cron_d);
             if($has_cron_d === false) {
                 $read[] = '*/1 *   * * *   root    cd / && run-parts --report /etc/cron.d';
                 $read = implode(PHP_EOL, $read);
