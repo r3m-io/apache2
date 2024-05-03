@@ -1152,12 +1152,11 @@ trait Main {
                     break;
                 }
             }
-            ddd($has_cron_d);
             if($has_cron_d === false) {
                 $read[] = '*/1 *   * * *   root    cd / && run-parts --report /etc/cron.d';
                 $read = implode(PHP_EOL, $read);
                 File::write($url, $read);
-                $command = 'service cron reload';
+                $command = 'service cron restart';
                 $object = $this->object();
                 Core::execute($object, $command, $output, $notification);
                 if ($output) {
