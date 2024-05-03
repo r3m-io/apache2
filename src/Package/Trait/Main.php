@@ -1146,6 +1146,7 @@ trait Main {
                     strpos($line, 'run-parts') !== false &&
                     strpos($line, '/etc/cron.d') !== false
                 ){
+                    echo $line . PHP_EOL;
                     $has_cron_d = true;
                     break;
                 }
