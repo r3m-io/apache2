@@ -5,7 +5,8 @@
 {{Package.R3m.Io.Basic:Main:apache2.setup()}}
 {{Package.R3m.Io.Basic:Main:openssl.init()}}
 {{Package.R3m.Io.Basic:Main:cron.init()}}
-{{/if}}
 {{Package.R3m.Io.Basic:Main:apache2.restore()}}
 {{Package.R3m.Io.Basic:Main:apache2.backup()}}
-{{Package.R3m.Io.Basic:Main:apache2.reload()}}
+{{Package.R3m.Io.Basic:Main:apache2.stop()}}
+{{Package.R3m.Io.Basic:Main:apache2.start()}}
+{{/if}}
