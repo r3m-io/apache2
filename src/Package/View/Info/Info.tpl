@@ -7,6 +7,7 @@ Submodule: {{$request.submodule|uppercase.first}}
 {{/if}}
 
 [01] {{binary()}} {{$request.package}}
+
 [02] {{binary()}} {{$request.package}} apache2
 [03] {{binary()}} {{$request.package}} apache2 backup
 [04] {{binary()}} {{$request.package}} apache2 reload
