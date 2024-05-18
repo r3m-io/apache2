@@ -926,7 +926,7 @@ trait Main {
      * @throws ObjectException
      * @throws Exception
      */
-    public function openssl_init($options=[]): void
+    public function openssl_init($flags, $options): void
     {
         $options = Core::object($options, Core::OBJECT_OBJECT);
         $object = $this->object();
