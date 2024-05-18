@@ -21,16 +21,21 @@ Submodule: {{$request.submodule|uppercase.first}}
 [13] {{binary()}} {{$request.package}} apache2 site has
 [14] {{binary()}} {{$request.package}} apache2 start
 [15] {{binary()}} {{$request.package}} apache2 stop
-[16] {{binary()}} {{$request.package}} openssl
-[17] {{binary()}} {{$request.package}} openssl init
-[18] {{binary()}} {{$request.package}} php
-[19] {{binary()}} {{$request.package}} php backup
-[20] {{binary()}} {{$request.package}} php restore
-[21] {{binary()}} {{$request.package}} php restart
-[22] {{binary()}} {{$request.package}} php start
-[23] {{binary()}} {{$request.package}} php stop
-[24] {{binary()}} {{$request.package}} setup
-[25] {{binary()}} {{$request.package}} update
+[16] {{binary()}} {{$request.package}} cron backup
+[17] {{binary()}} {{$request.package}} cron init
+[18] {{binary()}} {{$request.package}} cron restart
+[19] {{binary()}} {{$request.package}} cron restore
+[20] {{binary()}} {{$request.package}} cron start
+[21] {{binary()}} {{$request.package}} cron stop
+[22] {{binary()}} {{$request.package}} openssl
+[23] {{binary()}} {{$request.package}} openssl init
+[24] {{binary()}} {{$request.package}} php
+[25] {{binary()}} {{$request.package}} php backup
+[26] {{binary()}} {{$request.package}} php restore
+[27] {{binary()}} {{$request.package}} php restart
+[28] {{binary()}} {{$request.package}} php start
+[29] {{binary()}} {{$request.package}} php stop
+[30] {{binary()}} {{$request.package}} setup
 
 [01] This info
 [02] Apache2 options
@@ -47,13 +52,18 @@ Submodule: {{$request.submodule|uppercase.first}}
 [13] Check if an apache2 site config exists
 [14] Start Apache2 service
 [15] Stop Apache2 service
-[16] Openssl options
-[17] Initialize the openssl config for development
-[18] PHP options
-[19] Backup PHP .ini file into Data/Php
-[20] Restore PHP .ini file from Data/Php
-[21] Restart php-fpm service
-[22] Start php-fpm service
-[23] Stop php-fpm service
-[24] Setup the {{$request.package}} package
-[25] Update the {{$request.package}} package
+[16] Cron backup
+[17] Cron init
+[18] Cron restart
+[19] Cron restore
+[20] Cron start
+[21] Cron stop
+[22] Openssl options
+[23] Initialize the openssl config for development
+[24] PHP options
+[25] Backup PHP .ini file into Data/Php
+[26] Restore PHP .ini file from Data/Php
+[27] Restart php-fpm service
+[28] Start php-fpm service
+[29] Stop php-fpm service
+[30] Setup the {{$request.package}} package

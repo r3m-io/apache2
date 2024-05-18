@@ -20,29 +20,7 @@ class Cli extends Controller {
     const MODULE_INFO = 'Info';
     const INFO = [
         '{{binary()}} r3m_io/basic                   | Basic options',
-        '{{binary()}} r3m_io/basic setup             | Basic setup',
-        '{{binary()}} r3m_io/basic update            | Basic update',
-        '{{binary()}} r3m_io/basic apache2           | Apache2 options',
-        '{{binary()}} r3m_io/basic apache2 backup    | Backup Apache2 sites into Data/Apache2',
-        '{{binary()}} r3m_io/basic apache2 reload    | Reload Apache2 service',
-        '{{binary()}} r3m_io/basic apache2 restart   | Restart Apache2 service',
-        '{{binary()}} r3m_io/basic apache2 restore   | Restore Apache2 sites from Data/Apache2',
-        '{{binary()}} r3m_io/basic apache2 setup     | Setup Apache2 service to handle the r3m_io/framework and PHP',
-        '{{binary()}} r3m_io/basic apache2 site      | info',
-        '{{binary()}} r3m_io/basic apache2 site ...  | create',
-        '{{binary()}} r3m_io/basic apache2 site ...  | delete',
-        '{{binary()}} r3m_io/basic apache2 site ...  | disable',
-        '{{binary()}} r3m_io/basic apache2 site ...  | enable',
-        '{{binary()}} r3m_io/basic apache2 site ...  | has',
-        '{{binary()}} r3m_io/basic apache2 start     | Start Apache2 service',
-        '{{binary()}} r3m_io/basic apache2 stop      | Stop Apache2 service',
-        '{{binary()}} r3m_io/basic openssl init      | Init Openssl',
-        '{{binary()}} r3m_io/basic php               | PHP options',
-        '{{binary()}} r3m_io/basic php backup        | Backup PHP .ini file into Data/Php',
-        '{{binary()}} r3m_io/basic php restore       | Restore PHP .ini file from Data/Php',
-        '{{binary()}} r3m_io/basic php restart       | Restart php-fpm service',
-        '{{binary()}} r3m_io/basic php start         | Start php-fpm service',
-        '{{binary()}} r3m_io/basic php stop          | Stop php-fpm service',
+        '{{binary()}} r3m_io/basic setup             | Basic setup'
     ];
 
     /**
