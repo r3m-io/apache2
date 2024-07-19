@@ -424,6 +424,7 @@ trait Main {
                     }
                 }
             }
+            $is_missing = false;
             $object->set('options', $options);
             $read = $parse->compile($read, $object->data());
             $number = sprintf("%'.03d", File::count($dir_available));
