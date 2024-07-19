@@ -386,6 +386,12 @@ trait Main {
                     $options->server->alias = $list;
                 }
             }
+            if(
+                property_exists($options, 'server') &&
+                !property_exists($options->server, 'alias')
+            ){
+                $options->server->alias = [];
+            }
             $parse = new Parse($object);
             $url = $object->config('controller.dir.data') . '001-site.' . $environment . '.conf';
             $read = File::read($url);
