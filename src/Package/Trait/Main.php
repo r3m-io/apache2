@@ -355,6 +355,7 @@ trait Main {
             'development'
         ];
         $is_missing = true;
+        ddd($options);
         foreach($environments as $environment){
             if(!property_exists($options, $environment)){
                 continue;
